@@ -1,0 +1,8 @@
+package odf-tests
+
+sourcedir = "."
+
+depends = contrib, test
+
+main = ODFTests
+executable = odf-tests

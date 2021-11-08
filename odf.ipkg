@@ -1,0 +1,18 @@
+package odf
+
+sourcedir = "ODF"
+
+depends = contrib, xml
+
+modules =
+    ODF,
+    ODF.Error,
+    ODF.IO,
+
+    ODF.ODS,
+    ODF.ODS.Cell,
+    ODF.ODS.CellRef,
+    ODF.ODS.CellValue,
+    ODF.ODS.Document,
+    ODF.ODS.IO,
+    ODF.ODS.Sheet
