@@ -10,6 +10,7 @@ import Language.XML
 import public ODF.ODS.Cell
 import public ODF.ODS.CellRange
 import public ODF.ODS.CellRef
+import public ODF.ODS.CellValue
 
 data Row = MkRow Element
 
@@ -20,26 +21,58 @@ data Sheet = MkSheet Element
 
 %name Sheet sheet
 
-(.rows) : Sheet -> Stream Row
-(MkSheet sheet).rows =
-    let rowName = MkQName (Just $ MkName "table") (MkName "table-row") in
-    startWith
-        (map MkRow $ filter (\elem => elem.name == rowName) $ evens sheet.content)
-        (repeat $ MkRow $ EmptyElem rowName [])
+namespace Row
+    rowName : QName
+    rowName = MkQName (Just $ MkName "table") (MkName "table-row")
 
-(.cells) : Row -> Stream Cell
-(MkRow row).cells =
-    let cellName = MkQName (Just $ MkName "table") (MkName "table-cell") in
-    startWith
-        (map MkCell $ filter (\elem => elem.name == cellName) $ evens row.content)
-        (repeat $ MkCell $ EmptyElem cellName [])
+    namespace List
+        export
+        rows : Sheet -> List Row
+        rows (MkSheet sheet) = map MkRow $ filter (\elem => elem.name == rowName) $ evens sheet.content
+
+    export
+    emptyRow : Row
+    emptyRow = MkRow $ EmptyElem rowName []
+
+    namespace Stream
+        export
+        rows : Sheet -> Stream Row
+        rows sheet = startWith (List.rows sheet) $ repeat emptyRow
+
+namespace Cell
+    cellName : QName
+    cellName = MkQName (Just $ MkName "table") (MkName "table-cell")
+
+    namespace List
+        export
+        cells : Row -> List Cell
+        cells (MkRow row) = map MkCell $ filter (\elem => elem.name == cellName) $ evens row.content
+
+    export
+    emptyCell : Cell
+    emptyCell = MkCell $ EmptyElem cellName []
+
+    namespace Stream
+        export
+        cells : Row -> Stream Cell
+        cells row = startWith (List.cells row) $ repeat emptyCell
 
 export
 index : CellRef -> Sheet -> Cell
-index (MkCellRef row col) sheet = Stream.index col (Stream.index row sheet.rows).cells
+index (MkCellRef row col) sheet = Stream.index col $ cells (Stream.index row $ rows sheet)
 
 export
 slice : (r : CellRange) -> Sheet -> Vect r.height (Vect r.width Cell)
 slice r sheet =
-  let rows = take r.height $ drop r.top sheet.rows in
-  map (\row => take r.width $ drop r.left row.cells) rows
+  let rows = take r.height $ drop r.top $ rows sheet in
+  map (\row => take r.width $ drop r.left $ cells row) rows
+
+export
+find : (Cell -> Bool) -> Sheet -> Maybe Cell
+find f sheet = flip choiceMap (List.rows sheet) $
+    \row => flip choiceMap (List.cells row) $
+    \cell => toMaybe (f cell) cell
+
+export
+findByValue : CellValue -> Sheet -> Maybe Cell
+findByValue x = find ((== x) . (.value))
