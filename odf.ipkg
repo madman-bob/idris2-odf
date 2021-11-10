@@ -11,6 +11,7 @@ modules =
 
     ODF.ODS,
     ODF.ODS.Cell,
+    ODF.ODS.CellRange,
     ODF.ODS.CellRef,
     ODF.ODS.CellValue,
     ODF.ODS.Document,

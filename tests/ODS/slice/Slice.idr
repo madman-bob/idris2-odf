@@ -10,12 +10,5 @@ main = do
     let Just sheet = findSheet "Sheet1" ods
         | Nothing => putStrLn "Sheet not found"
 
-    printLn $ map (\ref => (index ref sheet).value) $ the (List CellRef) [
-        MkCellRef 0 0,
-        MkCellRef 0 1,
-        MkCellRef 1 0,
-        MkCellRef 1 1,
-        MkCellRef 2 1,
-        MkCellRef 2 2,
-        MkCellRef 3 1
-      ]
+    printLn $ map (map (.value)) $ slice (MkCellRange (MkCellRef 0 1) 2 3) sheet
+    printLn $ map (map (.value)) $ slice (MkCellRange (MkCellRef 1 0) 2 3) sheet
