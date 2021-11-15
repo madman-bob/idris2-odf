@@ -4,7 +4,7 @@ import Test.Golden
 
 odsTests : TestPool
 odsTests = MkTestPool "ODS" [] Nothing [
-    "CellValue", "find", "index", "slice"
+    "CellRef", "CellValue", "find", "index", "slice"
   ]
 
 main : IO ()
