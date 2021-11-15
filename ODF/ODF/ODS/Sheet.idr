@@ -76,3 +76,15 @@ find f sheet = flip choiceMap (List.rows sheet) $
 export
 findByValue : CellValue -> Sheet -> Maybe Cell
 findByValue x = find ((== x) . (.value))
+
+enumNat : List a -> List (Nat, a)
+enumNat = enumNat' 0 where
+    enumNat' : Nat -> List a -> List (Nat, a)
+    enumNat' _ [] = []
+    enumNat' acc (x :: xs) = (acc, x) :: enumNat' (S acc) xs
+
+export
+findIndex : (Cell -> Bool) -> Sheet -> Maybe CellRef
+findIndex f sheet = flip choiceMap (enumNat $ List.rows sheet) $
+    \(rowIndex, row) => flip choiceMap (enumNat $ List.cells row) $
+    \(colIndex, cell) => toMaybe (f cell) $ MkCellRef rowIndex colIndex

@@ -15,3 +15,6 @@ main = do
 
     printLn $ map (.value) $ findByValue 1.0 sheet
     printLn $ map (.value) $ findByValue 4.0 sheet
+
+    printLn $ findIndex (\cell => cell.value == 6.0) sheet
+    printLn $ findIndex (\cell => cell.value == 4.0) sheet
