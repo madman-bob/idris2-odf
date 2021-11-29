@@ -1,0 +1,10 @@
+. ../../testutils.sh
+
+cp ../../sampleODFs/templateDoc.odt spam.odt
+
+basicTest Template.idr
+
+checkODFContents spam.odt "Dear Sir/Madam,"
+checkODFContents spam.odt "Sincerely, Mr. Jerry Smith."
+
+rm spam.odt

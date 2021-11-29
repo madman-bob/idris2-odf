@@ -7,7 +7,7 @@ install: odf
 
 odf: build/ttc/Language/ODF.ttc
 
-build/ttc/Language/ODF.ttc: odf.ipkg ODF/* ODF/*/*
+build/ttc/Language/ODF.ttc: odf.ipkg ODF/* ODF/*/* ODF/*/*/*
 	idris2 --build odf.ipkg
 
 test:

@@ -1,9 +1,14 @@
 .PHONY: all clean
 
-all: simpleSheet.ods
+zipODF = cd $(1) && zip -0 -X ../$(1).$(2) mimetype && zip -r ../$(1).$(2) * -x mimetype
+
+all: simpleSheet.ods templateDoc.odt
 
 simpleSheet.ods: simpleSheet/* simpleSheet/*/*
-	cd simpleSheet && zip -0 -X ../simpleSheet.ods mimetype && zip -r ../simpleSheet.ods * -x mimetype
+	$(call zipODF,simpleSheet,ods)
+
+templateDoc.odt: templateDoc/* templateDoc/*/*
+	$(call zipODF,templateDoc,odt)
 
 clean:
 	$(RM) *.ods

@@ -7,3 +7,14 @@ basicTest() {
 
   rm -rf build
 }
+
+checkODFContents() {
+  fileName=$1
+  re=$2
+
+  if unzip -p "$fileName" content.xml | grep -q "$re"; then
+    echo "\"$fileName\" contents match \"$re\""
+  else
+    echo "\"$fileName\" contents do not match \"$re\""
+  fi
+}

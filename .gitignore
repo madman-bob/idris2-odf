@@ -4,3 +4,4 @@
 /tests/**/output
 /tests/failures
 /tests/sampleODFs/*.ods
+/tests/**/*.odt

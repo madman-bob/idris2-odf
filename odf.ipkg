@@ -16,4 +16,12 @@ modules =
     ODF.ODS.CellValue,
     ODF.ODS.Document,
     ODF.ODS.IO,
-    ODF.ODS.Sheet
+    ODF.ODS.Sheet,
+
+    ODF.ODT,
+    ODF.ODT.Document,
+    ODF.ODT.IO,
+    ODF.ODT.Template,
+    ODF.ODT.Template.Data,
+    ODF.ODT.Template.Parser,
+    ODF.ODT.Template.Substitution
