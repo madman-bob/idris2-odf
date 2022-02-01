@@ -13,7 +13,7 @@ export
 parse : ODT -> (vars : List String ** ODTTemplate vars)
 parse (MkODT doc) = do
     let (vars, root) = runState empty $ parseElem doc.root
-    (SortedSet.toList vars ** UnsafeMkTemplate $ record { root = root } doc)
+    (SortedSet.toList vars ** UnsafeMkTemplate $ { root := root } doc)
   where
     varPlaceholder : Parser (String, Element)
     varPlaceholder = do
