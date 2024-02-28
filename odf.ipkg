@@ -1,5 +1,7 @@
 package odf
 
+version = 1.0
+
 sourcedir = "ODF"
 
 depends = contrib, xml
