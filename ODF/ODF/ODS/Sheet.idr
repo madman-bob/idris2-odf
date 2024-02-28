@@ -28,7 +28,13 @@ namespace Row
     namespace List
         export
         rows : Sheet -> List Row
-        rows (MkSheet sheet) = map MkRow $ filter (\elem => elem.name == rowName) $ evens sheet.content
+        rows (MkSheet sheet) = map MkRow
+                             $ mapMaybe (\case
+                                 Right elem => (if elem.name == rowName
+                                                then Just elem
+                                                else Nothing)
+                                 Left _ => Nothing)
+                                 $ Odd.evens sheet.content
 
     export
     emptyRow : Row
@@ -46,7 +52,13 @@ namespace Cell
     namespace List
         export
         cells : Row -> List Cell
-        cells (MkRow row) = map MkCell $ filter (\elem => elem.name == cellName) $ evens row.content
+        cells (MkRow row) = map MkCell
+                          $ mapMaybe (\case
+                              Right elem => if elem.name == cellName
+                                            then Just elem
+                                            else Nothing
+                              Left _ => Nothing)
+                          $ evens row.content
 
     export
     emptyCell : Cell

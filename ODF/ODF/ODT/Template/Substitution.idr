@@ -12,7 +12,7 @@ infix 10 ::=
 public export
 data Substitutions : List String -> Type where
   Nil : Substitutions []
-  (::) : (subst : (String, Odd CharData Element)) -> Substitutions vars -> Substitutions (fst subst :: vars)
+  (::) : (subst : (String, Odd CharData (Either Misc Element))) -> Substitutions vars -> Substitutions (fst subst :: vars)
 
 %name Substitutions substs
 
@@ -26,7 +26,7 @@ done (UnsafeMkTemplate doc) = MkODT doc
 
 export
 substitute : (var : String)
-          -> (replacement : Odd CharData Element)
+          -> (replacement : Odd CharData (Either Misc Element))
           -> {auto 0 elem : Elem var vars}
           -> ODTTemplate vars
           -> ODTTemplate (dropElem vars elem)
@@ -34,11 +34,12 @@ substitute var replacement (UnsafeMkTemplate doc) = UnsafeMkTemplate $ mapConten
   where
     substituteContent : Element -> Element
     substituteContent = mapContent $ \content => Snd.do
-        elem@(EmptyElem (MkQName (Just $ MkName "template") (MkName name)) []) <- map substituteContent content
-            | elem => pure elem
+        elem@(EmptyElem (MkQName (Just $ MkName "template")
+                        (MkName name)) []) <- map ?substituteContent content
+        | elem => pure (Right elem)
         if name == var
             then replacement
-            else pure elem
+            else pure $ Right elem
 
 export
 render : ODTTemplate vars -> Substitutions vars -> ODT

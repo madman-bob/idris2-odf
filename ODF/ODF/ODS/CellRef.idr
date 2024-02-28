@@ -17,6 +17,6 @@ colName colIndex = pack $ colName' [] (S colIndex)
         rem => let c = chr $ 64 + cast rem in
                colName' (c :: acc) (n `div` 26)
 
-export
+export partial
 Show CellRef where
     show (MkCellRef row col) = colName col ++ show (S row)

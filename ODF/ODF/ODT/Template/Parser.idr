@@ -30,18 +30,26 @@ parse (MkODT doc) = do
         (names, rest) <- templateCharData
         pure $ (insert name names, init :: placeholder :: rest)
 
-    parseCharData : CharData -> State (SortedSet String) (Odd CharData Element)
+    parseCharData : CharData -> State (SortedSet String) (Odd CharData (Either Misc Element))
     parseCharData c = case parse (templateCharData <* eos) $ show c of
         Left err => assert_total $ idris_crash "Failed to parse char data as template - should be impossible"
         Right ((names, template), _) => do
             modify $ union names
-            pure template
+            pure $ bimap id Right $ template
 
     mutual
         parseElem : Element -> State (SortedSet String) Element
         parseElem = mapContentM parseContent
 
-        parseContent : Odd CharData Element -> State (SortedSet String) (Odd CharData Element)
+        parseContent : Odd CharData (Either Misc Element) ->
+                       State (SortedSet String) (Odd CharData (Either Misc Element))
         parseContent [charData] = parseCharData charData
-        parseContent (charData :: elem :: rest) =
-            [| parseCharData charData ++ [| parseElem elem :: parseContent rest |] |]
+        parseContent (charData :: Left  misc :: rest) = do
+          pre <- parseCharData charData
+          post <- parseContent rest
+          pure (pre ++ (Left misc :: post))
+        parseContent (charData :: Right elem :: rest) = do
+            pre <- parseCharData charData
+            mid <- parseElem elem
+            post <- parseContent rest
+            pure (pre ++ (Right mid :: post))
