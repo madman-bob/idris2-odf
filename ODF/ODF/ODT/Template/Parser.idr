@@ -21,16 +21,16 @@ parse (MkODT doc) = do
         varName <- takeWhile isAlpha
         pure (varName, EmptyElem (MkQName (Just $ MkName "template") (MkName varName)) [])
 
-    templateCharData : Parser (SortedSet String, Odd CharData Element)
+    templateCharData : Parser (SortedSet String, Odd CharData (Either Misc Element))
     templateCharData = do
         let Right (init, _) = parse (charData <* eos) !(takeWhile (/= '$'))
             | Left err => fail err
         Just (name, placeholder) <- optional varPlaceholder
             | Nothing => pure (empty, [init])
         (names, rest) <- templateCharData
-        pure $ (insert name names, init :: placeholder :: rest)
+        pure $ (insert name names, init :: Right placeholder :: rest)
 
-    parseCharData : CharData -> State (SortedSet String) (Odd CharData Element)
+    parseCharData : CharData -> State (SortedSet String) (Odd CharData (Either Misc Element))
     parseCharData c = case parse (templateCharData <* eos) $ show c of
         Left err => assert_total $ idris_crash "Failed to parse char data as template - should be impossible"
         Right ((names, template), _) => do
@@ -41,7 +41,7 @@ parse (MkODT doc) = do
         parseElem : Element -> State (SortedSet String) Element
         parseElem = mapContentM parseContent
 
-        parseContent : Odd CharData Element -> State (SortedSet String) (Odd CharData Element)
+        parseContent : Odd CharData (Either Misc Element) -> State (SortedSet String) (Odd CharData (Either Misc Element))
         parseContent [charData] = parseCharData charData
         parseContent (charData :: elem :: rest) =
-            [| parseCharData charData ++ [| parseElem elem :: parseContent rest |] |]
+            [| parseCharData charData ++ [| traverse parseElem elem :: parseContent rest |] |]

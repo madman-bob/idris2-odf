@@ -1,5 +1,6 @@
 module ODF.ODS.Sheet
 
+import Data.Either
 import Data.List
 import Data.Stream
 import Data.Stream.Extra
@@ -28,7 +29,7 @@ namespace Row
     namespace List
         export
         rows : Sheet -> List Row
-        rows (MkSheet sheet) = map MkRow $ filter (\elem => elem.name == rowName) $ evens sheet.content
+        rows (MkSheet sheet) = map MkRow $ filter (\elem => elem.name == rowName) $ rights $ evens sheet.content
 
     export
     emptyRow : Row
@@ -46,7 +47,7 @@ namespace Cell
     namespace List
         export
         cells : Row -> List Cell
-        cells (MkRow row) = map MkCell $ filter (\elem => elem.name == cellName) $ evens row.content
+        cells (MkRow row) = map MkCell $ filter (\elem => elem.name == cellName) $ rights $ evens row.content
 
     export
     emptyCell : Cell
