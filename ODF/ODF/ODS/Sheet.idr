@@ -45,9 +45,29 @@ namespace Cell
     cellName = MkQName (Just $ MkName "table") (MkName "table-cell")
 
     namespace List
+        filterCells : Row -> List Cell
+        filterCells (MkRow row) = map MkCell
+                                $ filter (\elem => elem.name == cellName)
+                                $ rights $ evens row.content
+        expandCells : List Cell -> List Cell
+        expandCells cells = do
+          cell@(MkCell elem) <- cells
+          case List.filter
+                 (\attr => attr.name == (MkQName (Just $ MkName "table")
+                                                       $ MkName "number-columns-repeated"))
+                 elem.attrs
+               of
+            [] => pure cell
+            -- Silent failure??
+            (val :: _) => replicate
+                            (cast val.value)
+                            -- Also should probs return a modified cell,
+                            -- without the columns-repeated attribute
+                            cell
+
         export
         cells : Row -> List Cell
-        cells (MkRow row) = map MkCell $ filter (\elem => elem.name == cellName) $ rights $ evens row.content
+        cells mrow@(MkRow row) = expandCells $ filterCells mrow
 
     export
     emptyCell : Cell
